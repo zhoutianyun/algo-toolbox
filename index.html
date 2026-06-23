@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔧 算法工具箱</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    padding: 2rem;
+    text-align: center;
+    border-bottom: 1px solid #475569;
+  }
+  header h1 { font-size: 2.2rem; color: #38bdf8; }
+  header p { color: #94a3b8; margin-top: 0.5rem; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: #38bdf8; box-shadow: 0 0 20px rgba(56,189,248,0.1); }
+  .card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
+  .card textarea, .card input, .card select {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin-bottom: 0.6rem;
+  }
+  .card textarea { min-height: 80px; resize: vertical; }
+  .card button {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    margin-right: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .card button:hover { background: #1d4ed8; }
+  .card button.secondary { background: #475569; }
+  .card button.secondary:hover { background: #64748b; }
+  .card button.danger { background: #dc2626; }
+  .card button.danger:hover { background: #b91c1c; }
+  .output {
+    margin-top: 0.6rem;
+    padding: 0.6rem;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    min-height: 40px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .output .label { color: #94a3b8; font-family: system-ui; font-size: 0.75rem; margin-bottom: 0.3rem; }
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: #64748b;
+    font-size: 0.85rem;
+  }
+  footer a { color: #38bdf8; text-decoration: none; }
+  .badge {
+    display: inline-block;
+    background: #1e40af;
+    color: #93c5fd;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+  }
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.5rem; }
+    .container { padding: 1rem; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🔧 算法工具箱</h1>
+  <p>排序可视化 · 编码转换 · JSON 格式化 · 进制转换 · 更多实用工具</p>
+</header>
+
+<div class="container">
+<div class="grid">
+
+<!-- ===================== 排序可视化 ===================== -->
+<div class="card">
+  <h2>📊 排序可视化</h2>
+  <canvas id="sortCanvas" width="300" height="200" style="width:100%;height:180px;background:#0f172a;border:1px solid #334155;border-radius:6px;margin-bottom:0.5rem;"></canvas>
+  <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+    <button onclick="sortBubble()">冒泡排序</button>
+    <button onclick="sortQuick()">快速排序</button>
+    <button onclick="sortMerge()">归并排序</button>
+    <button onclick="resetArray()">重置</button>
+  </div>
+  <div style="margin-top:0.4rem;display:flex;gap:0.4rem;align-items:center;">
+    <span style="font-size:0.8rem;color:#94a3b8;">速度</span>
+    <input type="range" id="sortSpeed" min="50" max="800" value="300" style="flex:1;">
+  </div>
+</div>
+
+<!-- ===================== JSON 格式化 ===================== -->
+<div class="card">
+  <h2>📋 JSON 格式化</h2>
+  <textarea id="jsonInput" placeholder='{"name":"算法工具箱","version":1.0}'></textarea>
+  <div>
+    <button onclick="formatJSON()">格式化</button>
+    <button onclick="compressJSON()">压缩</button>
+    <button onclick="validateJSON()">验证</button>
+  </div>
+  <div class="output" id="jsonOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== 进制转换 ===================== -->
+<div class="card">
+  <h2>🔢 进制转换</h2>
+  <input type="text" id="baseInput" placeholder="输入数字" value="255">
+  <div style="display:flex;gap:0.4rem;">
+    <select id="baseFrom" style="flex:1;">
+      <option value="2">二进制</option><option value="8">八进制</option>
+      <option value="10" selected>十进制</option><option value="16">十六进制</option>
+    </select>
+    <span style="line-height:2.2rem;">→</span>
+    <select id="baseTo" style="flex:1;">
+      <option value="2">二进制</option><option value="8">八进制</option>
+      <option value="10">十进制</option><option value="16" selected>十六进制</option>
+    </select>
+  </div>
+  <button onclick="convertBase()" style="width:100%;margin-top:0.3rem;">转换</button>
+  <div class="output" id="baseOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== Base64 编解码 ===================== -->
+<div class="card">
+  <h2>🔐 Base64 编解码</h2>
+  <textarea id="b64Input" placeholder="输入文本"></textarea>
+  <div>
+    <button onclick="encodeB64()">编码 → Base64</button>
+    <button onclick="decodeB64()">解码 ← Base64</button>
+  </div>
+  <div class="output" id="b64Output"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== 文本统计 ===================== -->
+<div class="card">
+  <h2>📊 文本统计</h2>
+  <textarea id="textStatInput" placeholder="输入文本进行分析……"></textarea>
+  <button onclick="analyzeText()">分析文本</button>
+  <div class="output" id="textStatOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== URL 编解码 ===================== -->
+<div class="card">
+  <h2>🔗 URL 编解码</h2>
+  <textarea id="urlInput" placeholder="输入 URL 或字符串……"></textarea>
+  <div>
+    <button onclick="encodeURL()">编码</button>
+    <button onclick="decodeURL()">解码</button>
+  </div>
+  <div class="output" id="urlOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== 字符串哈希 ===================== -->
+<div class="card">
+  <h2>🔑 字符串哈希</h2>
+  <input type="text" id="hashInput" placeholder="输入字符串">
+  <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+    <button onclick="computeHash('md5')">MD5</button>
+    <button onclick="computeHash('sha1')">SHA-1</button>
+    <button onclick="computeHash('sha256')">SHA-256</button>
+  </div>
+  <div class="output" id="hashOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== UUID 生成器 ===================== -->
+<div class="card">
+  <h2>🆔 UUID 生成器</h2>
+  <button onclick="generateUUID()">生成 UUID v4</button>
+  <button onclick="generateUUIDs()">生成 5 个</button>
+  <div class="output" id="uuidOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== Unix 时间戳 ===================== -->
+<div class="card">
+  <h2>⏰ 时间戳转换</h2>
+  <div style="display:flex;gap:0.4rem;">
+    <input type="text" id="tsInput" placeholder="Unix 时间戳（秒）" value="1719129600" style="flex:3;">
+    <button onclick="tsToDate()" style="flex:1;">→ 日期</button>
+  </div>
+  <div class="output" id="tsOutput"><span class="label">结果</span></div>
+  <div style="margin-top:0.5rem;">
+    <span id="nowTs" style="color:#94a3b8;font-size:0.85rem;"></span>
+    <button onclick="copyNowTs()" class="secondary" style="font-size:0.75rem;padding:0.2rem 0.6rem;">复制</button>
+  </div>
+</div>
+
+<!-- ===================== 正则测试 ===================== -->
+<div class="card">
+  <h2>🧪 正则测试</h2>
+  <input type="text" id="regexPattern" placeholder="正则表达式" value="\d+">
+  <input type="text" id="regexText" placeholder="测试文本" value="abc123def456">
+  <div>
+    <button onclick="testRegex()">测试</button>
+    <button onclick="testRegexExtended()" class="secondary">详细匹配</button>
+  </div>
+  <div class="output" id="regexOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== 颜色转换 ===================== -->
+<div class="card">
+  <h2>🎨 颜色转换</h2>
+  <input type="text" id="colorInput" placeholder="HEX 或 RGB" value="#38bdf8">
+  <button onclick="convertColor()">转换</button>
+  <div class="output" id="colorOutput"><span class="label">结果</span></div>
+  <div style="margin-top:0.5rem;">
+    <input type="color" id="colorPicker" value="#38bdf8" onchange="colorFromPicker(this.value)" style="width:100%;height:40px;border:none;cursor:pointer;">
+  </div>
+</div>
+
+<!-- ===================== 密码生成器 ===================== -->
+<div class="card">
+  <h2>🔑 密码生成器</h2>
+  <div style="display:flex;gap:0.4rem;align-items:center;">
+    <input type="number" id="pwdLength" value="16" min="4" max="64" style="flex:1;">
+    <label style="font-size:0.8rem;"><input type="checkbox" id="pwdUpper" checked> 大写</label>
+    <label style="font-size:0.8rem;"><input type="checkbox" id="pwdLower" checked> 小写</label>
+    <label style="font-size:0.8rem;"><input type="checkbox" id="pwdDigits" checked> 数字</label>
+    <label style="font-size:0.8rem;"><input type="checkbox" id="pwdSpecial"> 符号</label>
+  </div>
+  <button onclick="generatePassword()" style="width:100%;">生成密码</button>
+  <div class="output" id="pwdOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== 质数判断 ===================== -->
+<div class="card">
+  <h2>🧮 质数判断</h2>
+  <input type="number" id="primeInput" placeholder="输入整数" value="97">
+  <button onclick="checkPrime()">判断质数</button>
+  <button onclick="findPrimes()" class="secondary">找出 2~N 的所有质数</button>
+  <div class="output" id="primeOutput"><span class="label">结果</span></div>
+</div>
+
+<!-- ===================== 斐波那契 ===================== -->
+<div class="card">
+  <h2>🌀 斐波那契</h2>
+  <input type="number" id="fibInput" placeholder="输入 n" value="20" min="1" max="50">
+  <div>
+    <button onclick="fibNth()">第 n 项</button>
+    <button onclick="fibSequence()" class="secondary">前 n 项序列</button>
+  </div>
+  <div class="output" id="fibOutput"><span class="label">结果</span></div>
+</div>
+
+</div>
+</div>
+
+<footer>
+  🔧 算法工具箱 · Made with ❤️ by <a href="https://github.com/zhoutianyun">zhoutianyun</a>
+</footer>
+
+<script>
+// ===================== 排序可视化 =====================
+let sortArray = [];
+let sortCtx, animating = false;
+
+function initSort() {
+  const canvas = document.getElementById('sortCanvas');
+  sortCtx = canvas.getContext('2d');
+  resetArray();
+}
+
+function resetArray() {
+  if (animating) return;
+  sortArray = Array.from({length: 30}, () => Math.floor(Math.random() * 170) + 20);
+  drawArray(sortArray, -1, -1);
+}
+
+function drawArray(arr, highlight1, highlight2) {
+  const ctx = sortCtx;
+  const w = 300, h = 200;
+  ctx.clearRect(0, 0, w, h);
+  const barWidth = w / arr.length;
+  arr.forEach((val, i) => {
+    if (i === highlight1 || i === highlight2) ctx.fillStyle = '#38bdf8';
+    else ctx.fillStyle = '#2563eb';
+    ctx.fillRect(i * barWidth, h - val, barWidth - 1, val);
+  });
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getSpeed() {
+  return parseInt(document.getElementById('sortSpeed').value);
+}
+
+async function sortBubble() {
+  if (animating) return; animating = true;
+  const arr = [...sortArray];
+  const n = arr.length;
+  for (let i = 0; i < n-1; i++) {
+    for (let j = 0; j < n-i-1; j++) {
+      if (arr[j] > arr[j+1]) {
+        [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+      }
+      drawArray(arr, j, j+1);
+      await delay(getSpeed());
+    }
+  }
+  sortArray = arr;
+  drawArray(arr, -1, -1);
+  animating = false;
+}
+
+async function sortQuick() {
+  if (animating) return; animating = true;
+  const arr = [...sortArray];
+  async function qs(lo, hi) {
+    if (lo >= hi) return;
+    const pivot = arr[hi]; let i = lo;
+    for (let j = lo; j < hi; j++) {
+      if (arr[j] < pivot) {
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+        i++;
+      }
+      drawArray(arr, j, hi);
+      await delay(getSpeed() * 0.7);
+    }
+    [arr[i], arr[hi]] = [arr[hi], arr[i]];
+    drawArray(arr, i, hi);
+    await delay(getSpeed() * 0.7);
+    await qs(lo, i-1);
+    await qs(i+1, hi);
+  }
+  await qs(0, arr.length-1);
+  sortArray = arr;
+  drawArray(arr, -1, -1);
+  animating = false;
+}
+
+async function sortMerge() {
+  if (animating) return; animating = true;
+  const arr = [...sortArray];
+  async function ms(lo, hi) {
+    if (lo >= hi) return;
+    const mid = (lo + hi) >> 1;
+    await ms(lo, mid); await ms(mid+1, hi);
+    const left = arr.slice(lo, mid+1);
+    const right = arr.slice(mid+1, hi+1);
+    let i = 0, j = 0, k = lo;
+    while (i < left.length && j < right.length) {
+      if (left[i] <= right[j]) { arr[k] = left[i]; i++; }
+      else { arr[k] = right[j]; j++; }
+      drawArray(arr, k, -1);
+      await delay(getSpeed() * 0.6);
+      k++;
+    }
+    while (i < left.length) { arr[k] = left[i]; i++; k++; drawArray(arr, k-1, -1); await delay(getSpeed() * 0.4); }
+    while (j < right.length) { arr[k] = right[j]; j++; k++; drawArray(arr, k-1, -1); await delay(getSpeed() * 0.4); }
+  }
+  await ms(0, arr.length-1);
+  sortArray = arr;
+  drawArray(arr, -1, -1);
+  animating = false;
+}
+
+// ===================== JSON 工具 =====================
+function formatJSON() {
+  const input = document.getElementById('jsonInput').value;
+  try {
+    const parsed = JSON.parse(input);
+    document.getElementById('jsonOutput').innerHTML = '<span class="label">✅ 格式化结果</span>' + JSON.stringify(parsed, null, 2);
+  } catch(e) {
+    document.getElementById('jsonOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 错误</span>' + e.message;
+  }
+}
+function compressJSON() {
+  const input = document.getElementById('jsonInput').value;
+  try {
+    document.getElementById('jsonOutput').innerHTML = '<span class="label">✅ 压缩结果</span>' + JSON.stringify(JSON.parse(input));
+  } catch(e) {
+    document.getElementById('jsonOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 错误</span>' + e.message;
+  }
+}
+function validateJSON() {
+  const input = document.getElementById('jsonInput').value;
+  try {
+    JSON.parse(input);
+    document.getElementById('jsonOutput').innerHTML = '<span class="label" style="color:#22c55e;">✅ 有效的 JSON</span>';
+  } catch(e) {
+    document.getElementById('jsonOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 无效的 JSON</span>' + e.message;
+  }
+}
+
+// ===================== 进制转换 =====================
+function convertBase() {
+  const val = document.getElementById('baseInput').value.trim();
+  const from = parseInt(document.getElementById('baseFrom').value);
+  const to = parseInt(document.getElementById('baseTo').value);
+  const num = parseInt(val, from);
+  if (isNaN(num)) {
+    document.getElementById('baseOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 无效输入</span>';
+    return;
+  }
+  document.getElementById('baseOutput').innerHTML = '<span class="label">✅ 转换结果</span>' + num.toString(to).toUpperCase();
+}
+
+// ===================== Base64 =====================
+function encodeB64() {
+  const val = document.getElementById('b64Input').value;
+  document.getElementById('b64Output').innerHTML = '<span class="label">✅ Base64</span>' + btoa(unescape(encodeURIComponent(val)));
+}
+function decodeB64() {
+  const val = document.getElementById('b64Input').value.trim();
+  try {
+    document.getElementById('b64Output').innerHTML = '<span class="label">✅ 解码结果</span>' + decodeURIComponent(escape(atob(val)));
+  } catch(e) {
+    document.getElementById('b64Output').innerHTML = '<span class="label" style="color:#ef4444;">❌ Base64 无效</span>';
+  }
+}
+
+// ===================== 文本统计 =====================
+function analyzeText() {
+  const text = document.getElementById('textStatInput').value;
+  const chars = text.length;
+  const bytes = new Blob([text]).size;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const lines = text ? text.split('\n').length : 0;
+  const chinese = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+  document.getElementById('textStatOutput').innerHTML =
+    '<span class="label">📊 统计结果</span>' +
+    `字符数: ${chars}  |  字节数: ${bytes}\n` +
+    `单词数: ${words}  |  行数: ${lines}  |  汉字: ${chinese}`;
+}
+
+// ===================== URL 编解码 =====================
+function encodeURL() {
+  document.getElementById('urlOutput').innerHTML = '<span class="label">✅ 编码</span>' + encodeURIComponent(document.getElementById('urlInput').value);
+}
+function decodeURL() {
+  try {
+    document.getElementById('urlOutput').innerHTML = '<span class="label">✅ 解码</span>' + decodeURIComponent(document.getElementById('urlInput').value);
+  } catch(e) {
+    document.getElementById('urlOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 无效编码</span>';
+  }
+}
+
+// ===================== 哈希 =====================
+async function computeHash(algo) {
+  const text = document.getElementById('hashInput').value;
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  let hashBuffer;
+  if (algo === 'md5') {
+    // Simple MD5 using a basic implementation
+    document.getElementById('hashOutput').innerHTML = '<span class="label">⏳ 计算中（浏览器原生不支持 MD5）</span>';
+    return;
+  }
+  hashBuffer = await crypto.subtle.digest(algo.toUpperCase(), data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  document.getElementById('hashOutput').innerHTML = `<span class="label">✅ ${algo.toUpperCase()}</span>${hashHex}`;
+}
+
+// MD5 implementation for browser
+function md5(str) {
+  // Simple MD5 fallback using a library-free approach
+  function md5cycle(x, k) {
+    let a = x[0], b = x[1], c = x[2], d = x[3];
+    // Basic MD5 rounds using the standard algorithm
+    // Full implementation is too long for inline - we'll use a simpler hash
+    return [a, b, c, d];
+  }
+  // For completeness, we'll use the SubtleCrypto for SHA and note MD5 limitation
+  return "MD5";
+}
+
+// Add a simple MD5 implementation as fallback
+(function() {
+  // Include a minimal MD5 for browser completeness
+  function md5_legacy(s) {
+    const hex_chr = "0123456789abcdef";
+    function rhex(n) { let s = ''; for (let j = 0; j < 4; j++) s += hex_chr[(n >> (j * 8 + 4)) & 0x0F] + hex_chr[(n >> (j * 8)) & 0x0F]; return s; }
+    function str2blks_MD5(s) { const nblk = ((s.length + 8) >> 6) + 1; const blks = new Array(nblk * 16); for (let i = 0; i < nblk * 16; i++) blks[i] = 0; for (let i = 0; i < s.length; i++) blks[i >> 2] |= s.charCodeAt(i) << ((i % 4) * 8); blks[i >> 2] |= 0x80 << ((i % 4) * 8); blks[nblk * 16 - 2] = s.length * 8; return blks; }
+    function add(x, y) { const lsw = (x & 0xFFFF) + (y & 0xFFFF); const msw = (x >> 16) + (y >> 16) + (lsw >> 16); return (msw << 16) | (lsw & 0xFFFF); }
+    function rol(n, c) { return (n << c) | (n >>> (32 - c)); }
+    function cmn(q, a, b, x, s, t) { return add(rol(add(add(a, q), add(x, t)), s), b); }
+    function ff(a, b, c, d, x, s, t) { return cmn((b & c) | ((~b) & d), a, b, x, s, t); }
+    function gg(a, b, c, d, x, s, t) { return cmn((b & d) | (c & (~d)), a, b, x, s, t); }
+    function hh(a, b, c, d, x, s, t) { return cmn(b ^ c ^ d, a, b, x, s, t); }
+    function ii(a, b, c, d, x, s, t) { return cmn(c ^ (b | (~d)), a, b, x, s, t); }
+    const x = str2blks_MD5(s);
+    let a = 1732584193, b = -271733879, c = -1732584194, d = 271733878;
+    for (let i = 0; i < x.length; i += 16) {
+      const oa = a, ob = b, oc = c, od = d;
+      a = ff(a, b, c, d, x[i+0], 7, -680876936); d = ff(d, a, b, c, x[i+1], 12, -389564586); c = ff(c, d, a, b, x[i+2], 17, 606105819); b = ff(b, c, d, a, x[i+3], 22, -1044525330);
+      a = ff(a, b, c, d, x[i+4], 7, -176418897); d = ff(d, a, b, c, x[i+5], 12, 1200080426); c = ff(c, d, a, b, x[i+6], 17, -1473231341); b = ff(b, c, d, a, x[i+7], 22, -45705983);
+      a = ff(a, b, c, d, x[i+8], 7, 1770035416); d = ff(d, a, b, c, x[i+9], 12, -1958414417); c = ff(c, d, a, b, x[i+10], 17, -42063); b = ff(b, c, d, a, x[i+11], 22, -1990404162);
+      a = ff(a, b, c, d, x[i+12], 7, 1804603682); d = ff(d, a, b, c, x[i+13], 12, -40341101); c = ff(c, d, a, b, x[i+14], 17, -1502002290); b = ff(b, c, d, a, x[i+15], 22, 1236535329);
+      a = gg(a, b, c, d, x[i+1], 5, -165796510); d = gg(d, a, b, c, x[i+6], 9, -1069501632); c = gg(c, d, a, b, x[i+11], 14, 643717713); b = gg(b, c, d, a, x[i+0], 20, -373897302);
+      a = gg(a, b, c, d, x[i+5], 5, -701558691); d = gg(d, a, b, c, x[i+10], 9, 38016083); c = gg(c, d, a, b, x[i+15], 14, -660478335); b = gg(b, c, d, a, x[i+4], 20, -405537848);
+      a = gg(a, b, c, d, x[i+9], 5, 568446438); d = gg(d, a, b, c, x[i+14], 9, -1019803690); c = gg(c, d, a, b, x[i+3], 14, -187363961); b = gg(b, c, d, a, x[i+8], 20, 1163531501);
+      a = gg(a, b, c, d, x[i+13], 5, -1444681467); d = gg(d, a, b, c, x[i+2], 9, -51403784); c = gg(c, d, a, b, x[i+7], 14, 1735328473); b = gg(b, c, d, a, x[i+12], 20, -1926607734);
+      a = hh(a, b, c, d, x[i+5], 4, -378558); d = hh(d, a, b, c, x[i+8], 11, -2022574463); c = hh(c, d, a, b, x[i+11], 16, 1839030562); b = hh(b, c, d, a, x[i+14], 23, -35309556);
+      a = hh(a, b, c, d, x[i+1], 4, -1530992060); d = hh(d, a, b, c, x[i+4], 11, 1272893353); c = hh(c, d, a, b, x[i+7], 16, -155497632); b = hh(b, c, d, a, x[i+10], 23, -1094730640);
+      a = hh(a, b, c, d, x[i+13], 4, 681279174); d = hh(d, a, b, c, x[i+0], 11, -358537222); c = hh(c, d, a, b, x[i+3], 16, -722521979); b = hh(b, c, d, a, x[i+6], 23, 76029189);
+      a = hh(a, b, c, d, x[i+9], 4, -640364487); d = hh(d, a, b, c, x[i+12], 11, -421815835); c = hh(c, d, a, b, x[i+15], 16, 530742520); b = hh(b, c, d, a, x[i+2], 23, -995338651);
+      a = ii(a, b, c, d, x[i+0], 6, -198630844); d = ii(d, a, b, c, x[i+7], 10, 1126891415); c = ii(c, d, a, b, x[i+14], 15, -1416354905); b = ii(b, c, d, a, x[i+5], 21, -57434055);
+      a = ii(a, b, c, d, x[i+12], 6, 1700485571); d = ii(d, a, b, c, x[i+3], 10, -1894986606); c = ii(c, d, a, b, x[i+10], 15, -1051523); b = ii(b, c, d, a, x[i+1], 21, -2054922799);
+      a = ii(a, b, c, d, x[i+8], 6, 1873313359); d = ii(d, a, b, c, x[i+15], 10, -30611744); c = ii(c, d, a, b, x[i+6], 15, -1560198380); b = ii(b, c, d, a, x[i+13], 21, 1309151649);
+      a = ii(a, b, c, d, x[i+4], 6, -145523070); d = ii(d, a, b, c, x[i+11], 10, -1120210379); c = ii(c, d, a, b, x[i+2], 15, 718787259); b = ii(b, c, d, a, x[i+9], 21, -343485551);
+      a = add(a, oa); b = add(b, ob); c = add(c, oc); d = add(d, od);
+    }
+    return rhex(a) + rhex(b) + rhex(c) + rhex(d);
+  }
+  // Override the computeHash to use this MD5
+  window.md5 = md5_legacy;
+})();
+
+// Update computeHash to support MD5
+const origComputeHash = computeHash;
+computeHash = async function(algo) {
+  const text = document.getElementById('hashInput').value;
+  if (algo === 'md5') {
+    document.getElementById('hashOutput').innerHTML = '<span class="label">✅ MD5</span>' + md5(text);
+    return;
+  }
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest(algo.toUpperCase(), data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  document.getElementById('hashOutput').innerHTML = `<span class="label">✅ ${algo.toUpperCase()}</span>${hashHex}`;
+};
+
+// ===================== UUID =====================
+function generateUUID() {
+  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+  document.getElementById('uuidOutput').innerHTML = '<span class="label">✅ UUID v4</span>' + uuid;
+}
+function generateUUIDs() {
+  let result = '';
+  for (let i = 0; i < 5; i++) {
+    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    result += uuid + '\n';
+  }
+  document.getElementById('uuidOutput').innerHTML = '<span class="label">✅ 5 个 UUID</span>' + result.trim();
+}
+
+// ===================== 时间戳 =====================
+function tsToDate() {
+  const val = parseInt(document.getElementById('tsInput').value);
+  if (isNaN(val)) {
+    document.getElementById('tsOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 无效</span>';
+    return;
+  }
+  const d = new Date(val * 1000);
+  document.getElementById('tsOutput').innerHTML = '<span class="label">✅ 日期时间</span>' + d.toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
+}
+
+function updateNowTs() {
+  const now = Math.floor(Date.now() / 1000);
+  document.getElementById('nowTs').textContent = '🕐 当前时间戳: ' + now;
+}
+function copyNowTs() {
+  const now = Math.floor(Date.now() / 1000);
+  navigator.clipboard.writeText(now.toString());
+  document.getElementById('nowTs').textContent = '🕐 当前时间戳: ' + now + ' (已复制)';
+}
+
+// ===================== 正则 =====================
+function testRegex() {
+  const pattern = document.getElementById('regexPattern').value;
+  const text = document.getElementById('regexText').value;
+  try {
+    const re = new RegExp(pattern, 'g');
+    const matches = text.match(re);
+    document.getElementById('regexOutput').innerHTML =
+      '<span class="label">✅ 匹配结果</span>' +
+      (matches ? `找到 ${matches.length} 个匹配: ${matches.join(', ')}` : '无匹配');
+  } catch(e) {
+    document.getElementById('regexOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 正则错误</span>' + e.message;
+  }
+}
+
+function testRegexExtended() {
+  const pattern = document.getElementById('regexPattern').value;
+  const text = document.getElementById('regexText').value;
+  try {
+    const re = new RegExp(pattern, 'g');
+    let m; let result = '';
+    while ((m = re.exec(text)) !== null) {
+      result += `位置 ${m.index}: "${m[0]}"`;
+      for (let i = 1; i < m.length; i++) {
+        if (m[i] !== undefined) result += ` | 组${i}: "${m[i]}"`;
+      }
+      result += '\n';
+    }
+    document.getElementById('regexOutput').innerHTML =
+      '<span class="label">✅ 详细匹配</span>' + (result || '无匹配');
+  } catch(e) {
+    document.getElementById('regexOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 错误</span>' + e.message;
+  }
+}
+
+// ===================== 颜色转换 =====================
+function convertColor() {
+  const input = document.getElementById('colorInput').value.trim();
+  let r, g, b;
+  // HEX
+  if (/^#?[0-9a-f]{6}$/i.test(input)) {
+    const h = input.replace('#', '');
+    r = parseInt(h.slice(0,2), 16); g = parseInt(h.slice(2,4), 16); b = parseInt(h.slice(4,6), 16);
+  }
+  // RGB
+  else if (/^rgb\s*\(/i.test(input)) {
+    const m = input.match(/\d+/g);
+    if (m) { r = +m[0]; g = +m[1]; b = +m[2]; }
+  }
+  if (r === undefined) {
+    document.getElementById('colorOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 无法识别</span>';
+    return;
+  }
+  const hex = '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+  const hsl_r = r/255, hsl_g = g/255, hsl_b = b/255;
+  const max = Math.max(hsl_r, hsl_g, hsl_b), min = Math.min(hsl_r, hsl_g, hsl_b);
+  let h, s, l = (max + min) / 2;
+  if (max === min) { h = 0; s = 0; }
+  else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === hsl_r) h = ((hsl_g - hsl_b) / d + (hsl_g < hsl_b ? 6 : 0)) * 60;
+    else if (max === hsl_g) h = ((hsl_b - hsl_r) / d + 2) * 60;
+    else h = ((hsl_r - hsl_g) / d + 4) * 60;
+  }
+  document.getElementById('colorOutput').innerHTML =
+    '<span class="label">🎨 转换结果</span>' +
+    `HEX: ${hex}\nRGB: rgb(${r}, ${g}, ${b})\nHSL: hsl(${Math.round(h)}, ${Math.round(s*100)}%, ${Math.round(l*100)}%)`;
+  document.getElementById('colorPicker').value = hex;
+}
+
+function colorFromPicker(val) {
+  document.getElementById('colorInput').value = val;
+  convertColor();
+}
+
+// ===================== 密码生成器 =====================
+function generatePassword() {
+  const len = parseInt(document.getElementById('pwdLength').value);
+  const useUpper = document.getElementById('pwdUpper').checked;
+  const useLower = document.getElementById('pwdLower').checked;
+  const useDigits = document.getElementById('pwdDigits').checked;
+  const useSpecial = document.getElementById('pwdSpecial').checked;
+
+  let chars = '';
+  if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (useLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+  if (useDigits) chars += '0123456789';
+  if (useSpecial) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+  if (!chars) {
+    document.getElementById('pwdOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 至少选一个字符类型</span>';
+    return;
+  }
+
+  let pwd = '';
+  for (let i = 0; i < len; i++) {
+    pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  document.getElementById('pwdOutput').innerHTML = '<span class="label">✅ 密码 (' + len + '位)</span>' + pwd;
+}
+
+// ===================== 质数 =====================
+function isPrime(n) {
+  if (n < 2) return false;
+  if (n === 2) return true;
+  if (n % 2 === 0) return false;
+  for (let i = 3; i * i <= n; i += 2) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+function checkPrime() {
+  const n = parseInt(document.getElementById('primeInput').value);
+  if (isNaN(n) || n < 1) {
+    document.getElementById('primeOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 请输入正整数</span>';
+    return;
+  }
+  document.getElementById('primeOutput').innerHTML =
+    `<span class="label">🔍 判断结果</span>${n} ${isPrime(n) ? '✅ 是质数' : '❌ 不是质数'}`;
+}
+function findPrimes() {
+  const n = parseInt(document.getElementById('primeInput').value);
+  if (isNaN(n) || n < 2) {
+    document.getElementById('primeOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 请输入 ≥2 的整数</span>';
+    return;
+  }
+  const primes = [];
+  for (let i = 2; i <= n; i++) {
+    if (isPrime(i)) primes.push(i);
+  }
+  document.getElementById('primeOutput').innerHTML =
+    `<span class="label">✅ 2~${n} 的质数 (共 ${primes.length} 个)</span>${primes.join(', ')}`;
+}
+
+// ===================== 斐波那契 =====================
+function fibN() {
+  const n = parseInt(document.getElementById('fibInput').value);
+  if (n < 1 || n > 50) return null;
+  let a = 0n, b = 1n;
+  for (let i = 2; i <= n; i++) { [a, b] = [b, a + b]; }
+  return n === 1 ? 0n : b;
+}
+function fibNth() {
+  const n = parseInt(document.getElementById('fibInput').value);
+  if (isNaN(n) || n < 1 || n > 50) {
+    document.getElementById('fibOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 请输入 1~50 的整数</span>';
+    return;
+  }
+  const result = fibN();
+  document.getElementById('fibOutput').innerHTML =
+    `<span class="label">✅ 第 ${n} 项</span>F(${n}) = ${result.toString()}`;
+}
+function fibSequence() {
+  const n = parseInt(document.getElementById('fibInput').value);
+  if (isNaN(n) || n < 1 || n > 50) {
+    document.getElementById('fibOutput').innerHTML = '<span class="label" style="color:#ef4444;">❌ 请输入 1~50 的整数</span>';
+    return;
+  }
+  const seq = [];
+  for (let i = 1; i <= n; i++) {
+    let a = 0n, b = 1n;
+    for (let j = 2; j <= i; j++) { [a, b] = [b, a + b]; }
+    seq.push(i === 1 ? 0n : b);
+  }
+  document.getElementById('fibOutput').innerHTML =
+    `<span class="label">✅ 前 ${n} 项</span>${seq.map((v, i) => `F(${i+1})=${v}`).join(', ')}`;
+}
+
+// ===================== 初始化 =====================
+initSort();
+updateNowTs();
+setInterval(updateNowTs, 1000);
+</script>
+</body>
+</html>
